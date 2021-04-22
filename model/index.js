@@ -1,15 +1,58 @@
-// const fs = require('fs/promises')
-// const contacts = require('./contacts.json')
+const fs = require("fs/promises");
+const { v4: uuidv4 } = require("uuid");
+const path = require("path");
+const { body, validationResult } = require("express-validator");
 
-const listContacts = async () => {}
+const contactsPath = path.join(__dirname, "./contacts.json");
 
-const getContactById = async (contactId) => {}
+const listContacts = async () => {
+  const data = await fs.readFile(contactsPath);
+  return JSON.parse(data);
+};
 
-const removeContact = async (contactId) => {}
+const getContactById = async (contactId) => {
+  const data = await fs.readFile(contactsPath);
+  const contacts = JSON.parse(data);
+  const contact = contacts.find((contact) => String(contact.id) === contactId);
+  return contact;
+};
 
-const addContact = async (body) => {}
+const removeContact = async (contactId) => {
+  const data = await fs.readFile(contactsPath);
+  const users = JSON.parse(data);
+  const usersFiltered = users.filter((user) => String(user.id) !== contactId);
+  const [deletedContact] = users.filter(
+    (user) => String(user.id) === contactId
+  );
+  fs.writeFile(contactsPath, JSON.stringify(usersFiltered, null, 2));
+  return deletedContact !== [] ? deletedContact : null;
+};
 
-const updateContact = async (contactId, body) => {}
+const addContact = async (body) => {
+  const id = uuidv4();
+  const record = { id, ...body };
+  const data = await fs.readFile(contactsPath);
+  const users = JSON.parse(data);
+  users.push(record);
+  fs.writeFile(contactsPath, JSON.stringify(users, null, 2));
+  return record;
+};
+
+const updateContact = async (contactId, body) => {
+  const data = await fs.readFile(contactsPath);
+  const contacts = JSON.parse(data);
+  const contact = contacts.find((contact) => String(contact.id) === contactId);
+
+  const newContact = contacts.assign(contact, body);
+
+  contacts.forEach((item, i) => {
+    if (String(item.id) === contactId) contacts[i] = newContact;
+  });
+
+  fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+
+  return newContact.id ? newContact : null;
+};
 
 module.exports = {
   listContacts,
@@ -17,4 +60,4 @@ module.exports = {
   removeContact,
   addContact,
   updateContact,
-}
+};
