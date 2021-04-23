@@ -1,7 +1,6 @@
 const fs = require("fs/promises");
 const { v4: uuidv4 } = require("uuid");
 const path = require("path");
-const { body, validationResult } = require("express-validator");
 
 const contactsPath = path.join(__dirname, "./contacts.json");
 
