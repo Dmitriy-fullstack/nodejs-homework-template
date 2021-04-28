@@ -32,7 +32,7 @@ const validate = (schema, body, next) => {
     const [{ message }] = error.details;
 
     return next({
-      status: httpCodes.BAD_REQUEST,
+      status: 400,
       message: `Field ${message.replace(/"/g, "")}`,
       data: "Bad Request",
     });
